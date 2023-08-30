@@ -19,6 +19,9 @@ def etl():
     df['FirstCounty'] = df['County'].apply(lambda x: x.split('/')[0])
     df['Country'] = df['FirstCounty'].map(county_map)
 
+    # Add description column
+    df['KMLDesc'] = df.apply(lambda x: f'Height of{x.Metres}m. Prominence of {x.Drop}m.', axis=1)
+
     # Filter out everything that is not a Marilyn, HuMP, Simm, Munro, or Furth
     # Marilyn: Drop above 150m
     # HuMP: Drop above 100m
