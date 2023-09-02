@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 
 
@@ -31,24 +32,22 @@ def hills_csv_to_kml():
     """Create KML documents for Marilyns and Simms."""
     df = pd.read_csv('./data/hills_etl.csv')
 
-    # Create Marilyn KML
-    df_m = df.loc[df.Ma == 1]
-    kml = dataframe_to_kml(df_m, 'Name', 'KMLDesc', 'Latitude', 'Longitude')
-    with open('./data/hills_marilyn.kml', 'w') as f:
-        f.write(kml)
+    # KML files to create, tuple is file_name and DataFrame filter
+    kml_groups = [('./data/kml/hills_marilyn.kml', df.Ma == 1),
+                  ('./data/kml/hills_simm.kml', df.Sim == 1),
+                  ('./data/kml/hills_simm_england.kml', (df.Sim == 1) & (df.Country == 'England'))]
     
-    # Create Simm KML
-    df_s = df.loc[df.Sim == 1]
-    kml = dataframe_to_kml(df_s, 'Name', 'KMLDesc', 'Latitude', 'Longitude')
-    with open('./data/hills_simm.kml', 'w') as f:
-        f.write(kml)
-    
-    # Create Simm KML
-    df_se = df.loc[(df.Sim == 1) & (df.Country == 'England')]
-    kml = dataframe_to_kml(df_se, 'Name', 'KMLDesc', 'Latitude', 'Longitude')
-    with open('./data/hills_simm_england.kml', 'w') as f:
-        f.write(kml)
+    # Create KML file directory if does not exist
+    if not os.path.exists('./data/kml/'):
+        os.mkdir('./data/kml/')
+
+    # Create each KML file
+    for file_data in kml_groups:
+        df_temp = df.loc[file_data[1]]
+        kml = dataframe_to_kml(df_temp, 'Name', 'KMLDesc', 'Latitude', 'Longitude')
+        with open(file_data[0], 'w') as f:
+            f.write(kml)
 
 
-#print(generate_placemark_kml('Mt', 'Big Mountain', 25, 30))
-hills_csv_to_kml()
+if __name__ == "__main__":
+    hills_csv_to_kml()
